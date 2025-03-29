@@ -10,16 +10,13 @@ def start_screen(stdscr):
     stdscr.getkey()
 
 def display_text(stdscr, target, current, wpm=0):
-    stdscr.addstr(target)
+    stdscr.addstr(0, 0, target, curses.color_pair(3))  # Explicitly place target text
     stdscr.addstr(1, 0, f"WPM: {wpm}")
-
+    
     for i, char in enumerate(current):
-            correct_char = target[i]
-            color = curses.color_pair(1)
-            if char != correct_char:
-                color = curses.color_pair(2)
-            stdscr.addstr(0, i, char, color)
-
+        correct_char = target[i]
+        color = curses.color_pair(1) if char == correct_char else curses.color_pair(2)
+        stdscr.addstr(0, i, char, color)  # Ensure correct placement
 
 def wpm_test(stdscr):
     target_text = "Hello world this is some test text from the app!"
@@ -41,17 +38,17 @@ def wpm_test(stdscr):
 
         try:
             key = stdscr.getkey()
-        except:
+        except curses.error:  # Handle input errors
             continue
 
-        if ord(key) == 27:
+        if key == "\x1b":  # ESC key to exit
             break
 
         if key in ("KEY_BACKSPACE", "\b", "\x7f"):
-            if len(current_text) > 0:
+            if current_text:
                 current_text.pop()
         elif len(current_text) < len(target_text):
-                current_text.append(key)
+            current_text.append(key)
 
 def main(stdscr):
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
